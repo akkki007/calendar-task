@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wall Calendar
+
+An interactive, skeuomorphic wall calendar built with Next.js 16, React 19, Framer Motion, and Tailwind CSS 4.
+
+## Design Choices
+
+### Local Images
+Month hero images are downloaded and served from `public/images/months/` instead of fetching from Unsplash at runtime. This eliminates external network latency, avoids rate-limit issues, and lets `next/image` handle optimization and caching automatically.
+
+### Full-Page Flip Animation
+Month transitions use a page-flip animation that rotates the entire calendar page (image + grid + footer) from the top edge, mimicking how a real wall calendar page turns over the spiral binding. Built with Framer Motion's `AnimatePresence` and 3D CSS transforms (`perspective`, `rotateX`, `transformOrigin: top center`).
+
+### Physical Shadow Effect
+The calendar card uses layered `box-shadow` values at increasing depths plus subtle inset highlights to simulate the look of a physical paper calendar hanging on a wall.
+
+### Spiral Binding
+An SVG-based wire spiral binding sits above the calendar card. It renders front/back coil arcs, punched paper holes, metallic gradients, and highlights that adapt to light/dark themes.
+
+### Scaled-Down Layout
+Max width is set to `900px` (down from `1200px`) so the calendar feels appropriately sized on desktop without overwhelming the viewport.
+
+### Hydration-Safe Hooks
+`useCalendar`, `useTheme`, and `useNotes` all initialize with deterministic defaults on the server, then restore from `localStorage` after mount. This avoids React hydration mismatches while still persisting user state across sessions.
+
+## Tech Stack
+
+| Layer | Choice |
+|-------|--------|
+| Framework | Next.js 16 (App Router, Turbopack) |
+| UI | React 19, Framer Motion 12 |
+| Styling | Tailwind CSS 4 |
+| Icons | Lucide React |
+| Language | TypeScript 5 |
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# Install dependencies
+npm install
+
+# Start dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Other Commands
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build   # Production build
+npm run start   # Serve production build
+```
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+  app/                  # Next.js App Router (layout, page, globals)
+  components/
+    WallCalendar/       # All calendar UI components
+      WallCalendar.tsx    # Main orchestrator
+      HeroImage.tsx       # Month hero image
+      FlipTransition.tsx  # Full-page flip animation
+      SpiralBinding.tsx   # SVG wire spiral
+      CalendarGrid.tsx    # Day grid
+      CalendarHeader.tsx  # Month/year nav + theme toggle
+      NotesPanel.tsx      # Side panel / mobile drawer for notes
+      MiniCalendar.tsx    # Prev/next month mini grids
+  hooks/                # useCalendar, useDateRange, useNotes, useTheme
+  lib/                  # Types, constants, date utilities
+public/
+  images/months/        # 12 locally-served hero images (one per month)
+```
