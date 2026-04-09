@@ -10,47 +10,8 @@ interface FlipTransitionProps {
   children: ReactNode;
 }
 
-const EASE = [0.645, 0.045, 0.355, 1.0] as const;
-
-const flipVariants = {
-  enterForward: {
-    rotateX: 90,
-    opacity: 0,
-    transformOrigin: "top center",
-  },
-  enterBackward: {
-    rotateX: -90,
-    opacity: 0,
-    transformOrigin: "bottom center",
-  },
-  center: {
-    rotateX: 0,
-    opacity: 1,
-    transformOrigin: "top center",
-    transition: {
-      duration: 0.6,
-      ease: EASE,
-    },
-  },
-  exitForward: {
-    rotateX: -90,
-    opacity: 0,
-    transformOrigin: "top center",
-    transition: {
-      duration: 0.6,
-      ease: EASE,
-    },
-  },
-  exitBackward: {
-    rotateX: 90,
-    opacity: 0,
-    transformOrigin: "bottom center",
-    transition: {
-      duration: 0.6,
-      ease: EASE,
-    },
-  },
-} as const;
+const DURATION = 0.7;
+const EASE = [0.4, 0.0, 0.2, 1.0] as const;
 
 export default function FlipTransition({
   transitionKey,
@@ -58,15 +19,43 @@ export default function FlipTransition({
   children,
 }: FlipTransitionProps) {
   return (
-    <div style={{ perspective: 1200 }} className="relative overflow-hidden">
-      <AnimatePresence mode="wait" initial={false}>
+    <div
+      style={{ perspective: 1800, perspectiveOrigin: "top center" }}
+      className="relative"
+    >
+      <AnimatePresence mode="popLayout" initial={false}>
         <motion.div
           key={transitionKey}
-          variants={flipVariants}
-          initial={direction === "forward" ? "enterForward" : "enterBackward"}
-          animate="center"
-          exit={direction === "forward" ? "exitForward" : "exitBackward"}
-          style={{ backfaceVisibility: "hidden" }}
+          style={{
+            transformOrigin: "top center",
+            backfaceVisibility: "hidden",
+            transformStyle: "preserve-3d",
+          }}
+          initial={{
+            rotateX: direction === "forward" ? 90 : -90,
+            opacity: 0,
+            scale: 0.97,
+          }}
+          animate={{
+            rotateX: 0,
+            opacity: 1,
+            scale: 1,
+            transition: {
+              rotateX: { duration: DURATION, ease: EASE },
+              opacity: { duration: DURATION * 0.5, ease: "easeOut" },
+              scale: { duration: DURATION, ease: EASE },
+            },
+          }}
+          exit={{
+            rotateX: direction === "forward" ? -120 : 120,
+            opacity: 0,
+            scale: 0.97,
+            transition: {
+              rotateX: { duration: DURATION, ease: EASE },
+              opacity: { duration: DURATION * 0.6, delay: DURATION * 0.2, ease: "easeIn" },
+              scale: { duration: DURATION, ease: EASE },
+            },
+          }}
         >
           {children}
         </motion.div>

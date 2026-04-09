@@ -1,30 +1,39 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { buildCalendarGrid } from "@/lib/dateUtils";
 import { CalendarDay, MonthYear, NavigationDirection } from "@/lib/types";
 
 const STORAGE_KEY = "wall-calendar-last-view";
 
-function getInitialMonthYear(): MonthYear {
-  if (typeof window !== "undefined") {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
-    } catch {
-      // ignore
-    }
-  }
+function getCurrentMonthYear(): MonthYear {
   const now = new Date();
   return { month: now.getMonth(), year: now.getFullYear() };
 }
 
 export function useCalendar() {
-  const [monthYear, setMonthYear] = useState<MonthYear>(getInitialMonthYear);
+  const [monthYear, setMonthYear] = useState<MonthYear>(getCurrentMonthYear);
   const [direction, setDirection] = useState<NavigationDirection>("forward");
+  const hasRestoredRef = useRef(false);
 
   const { month, year } = monthYear;
 
+  // Restore from localStorage after mount (avoids hydration mismatch)
+  useEffect(() => {
+    if (hasRestoredRef.current) return;
+    hasRestoredRef.current = true;
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed: MonthYear = JSON.parse(saved);
+        setMonthYear(parsed);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  // Persist to localStorage on change
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(monthYear));

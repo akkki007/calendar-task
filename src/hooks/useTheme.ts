@@ -5,21 +5,27 @@ import { Theme } from "@/lib/types";
 
 const STORAGE_KEY = "wall-calendar-theme";
 
-function getInitialTheme(): Theme {
-  if (typeof window === "undefined") return "light";
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved === "dark" || saved === "light") return saved;
-  } catch {
-    // ignore
-  }
-  return "light";
-}
-
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  // Keep the initial render deterministic across server and client to avoid hydration mismatch.
+  const [theme, setTheme] = useState<Theme>("light");
+  const [hasLoadedPreference, setHasLoadedPreference] = useState(false);
 
   useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved === "dark" || saved === "light") {
+        setTheme(saved);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setHasLoadedPreference(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hasLoadedPreference) return;
+
     const root = document.documentElement;
     if (theme === "dark") {
       root.classList.add("dark");
@@ -31,7 +37,7 @@ export function useTheme() {
     } catch {
       // ignore
     }
-  }, [theme]);
+  }, [theme, hasLoadedPreference]);
 
   const toggleTheme = useCallback(() => {
     setTheme((prev) => (prev === "light" ? "dark" : "light"));

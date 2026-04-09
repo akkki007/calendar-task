@@ -18,8 +18,9 @@ export default function HeroImage({ month, year }: HeroImageProps) {
         alt={`${MONTH_NAMES[month]} ${year} seasonal landscape`}
         fill
         className="object-cover"
-        sizes="(max-width: 640px) 100vw, 960px"
-        priority
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 92vw, 720px"
+        quality={80}
+        priority={true}
       />
       {/* Gradient scrim at bottom */}
       <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/50 to-transparent" />

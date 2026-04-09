@@ -108,7 +108,7 @@ export default function WallCalendar() {
   const nextYear = month === 11 ? year + 1 : year;
 
   return (
-    <div className="flex w-full max-w-[1200px] flex-col lg:flex-row" ref={calendarRef}>
+    <div className="flex w-full max-w-[900px] flex-col lg:flex-row" ref={calendarRef}>
       {/* Notes Panel — left on desktop, bottom drawer on mobile */}
       <NotesPanel
         month={month}
@@ -124,21 +124,24 @@ export default function WallCalendar() {
       {/* Main Calendar Card */}
       <div className="relative flex-1 lg:rounded-l-none">
         {/* Spiral Binding — sits at the very top, overlapping the card */}
-        <SpiralBinding />
+        <SpiralBinding theme={theme} />
 
         {/* Calendar card body below the spiral */}
         <div
-          className="paper-texture relative overflow-hidden rounded-b-xl shadow-lg"
+          className="paper-texture relative overflow-hidden rounded-b-xl"
           style={{
             backgroundColor: "var(--bg-calendar)",
             boxShadow: `
-              0 4px 6px -1px var(--shadow-color),
-              0 10px 15px -3px var(--shadow-color),
-              0 20px 40px -4px var(--shadow-color)
+              0 2px 4px -1px rgba(0,0,0,0.06),
+              0 6px 12px -2px rgba(0,0,0,0.08),
+              0 12px 24px -4px rgba(0,0,0,0.10),
+              0 24px 48px -8px rgba(0,0,0,0.12),
+              inset 0 1px 0 rgba(255,255,255,0.15),
+              inset 0 -1px 0 rgba(0,0,0,0.05)
             `,
           }}
         >
-          {/* Swipeable area wrapping Hero Image */}
+          {/* Full-page flip transition — entire calendar page flips from the spiral binding */}
           <motion.div
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
@@ -147,49 +150,49 @@ export default function WallCalendar() {
             animate={swipeControls}
             className="touch-pan-y"
           >
-            {/* Hero Image with flip transition */}
             <FlipTransition
               transitionKey={`${month}-${year}`}
               direction={direction}
             >
+              {/* Hero Image */}
               <HeroImage month={month} year={year} />
+
+              {/* Header — between image and grid */}
+              <CalendarHeader
+                month={month}
+                year={year}
+                direction={direction}
+                theme={theme}
+                onPrev={goToPrevMonth}
+                onNext={goToNextMonth}
+                onToday={goToToday}
+                onToggleTheme={toggleTheme}
+              />
+
+              {/* Calendar Grid */}
+              <CalendarGrid
+                days={calendarDays}
+                month={month}
+                year={year}
+                rangeStart={range.start}
+                rangeEnd={range.end}
+                previewEnd={previewEnd}
+                hasNoteForDay={hasNoteForDay}
+                onDayClick={handleDayClick}
+                onDayHover={handleDayHover}
+                onKeyNavigation={handleKeyNavigation}
+              />
+
+              {/* Mini calendars footer */}
+              <div
+                className="hidden items-center justify-between gap-4 px-5 py-4 sm:flex"
+                style={{ borderTop: "1px solid color-mix(in srgb, var(--border-color) 50%, transparent)" }}
+              >
+                <MiniCalendar month={prevMonth} year={prevYear} label="Previous" />
+                <MiniCalendar month={nextMonth} year={nextYear} label="Next" />
+              </div>
             </FlipTransition>
           </motion.div>
-
-          {/* Header — between image and grid */}
-          <CalendarHeader
-            month={month}
-            year={year}
-            direction={direction}
-            theme={theme}
-            onPrev={goToPrevMonth}
-            onNext={goToNextMonth}
-            onToday={goToToday}
-            onToggleTheme={toggleTheme}
-          />
-
-          {/* Calendar Grid */}
-          <CalendarGrid
-            days={calendarDays}
-            month={month}
-            year={year}
-            rangeStart={range.start}
-            rangeEnd={range.end}
-            previewEnd={previewEnd}
-            hasNoteForDay={hasNoteForDay}
-            onDayClick={handleDayClick}
-            onDayHover={handleDayHover}
-            onKeyNavigation={handleKeyNavigation}
-          />
-
-          {/* Mini calendars footer */}
-          <div
-            className="hidden items-center justify-between gap-4 px-5 py-4 sm:flex"
-            style={{ borderTop: "1px solid color-mix(in srgb, var(--border-color) 50%, transparent)" }}
-          >
-            <MiniCalendar month={prevMonth} year={prevYear} label="Previous" />
-            <MiniCalendar month={nextMonth} year={nextYear} label="Next" />
-          </div>
         </div>
       </div>
 

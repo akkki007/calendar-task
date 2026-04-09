@@ -25,11 +25,20 @@ function saveNotes(notes: CalendarNote[]) {
 }
 
 export function useNotes() {
-  const [notes, setNotes] = useState<CalendarNote[]>(loadNotes);
+  const [notes, setNotes] = useState<CalendarNote[]>([]);
+  const [hasLoadedNotes, setHasLoadedNotes] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Load notes from storage after mount to keep server/client initial render consistent.
+  useEffect(() => {
+    setNotes(loadNotes());
+    setHasLoadedNotes(true);
+  }, []);
 
   // Persist on changes (debounced)
   useEffect(() => {
+    if (!hasLoadedNotes) return;
+
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       saveNotes(notes);
@@ -38,7 +47,7 @@ export function useNotes() {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [notes]);
+  }, [notes, hasLoadedNotes]);
 
   const getNote = useCallback(
     (monthKey: string, rangeKey?: string): CalendarNote | undefined => {

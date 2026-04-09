@@ -213,7 +213,7 @@ export default function NotesPanel({
     <>
       {/* Desktop: fixed sidebar */}
       <div
-        className="hidden lg:flex lg:w-[260px] lg:flex-shrink-0 lg:flex-col rounded-l-xl overflow-hidden"
+        className="hidden lg:flex lg:w-[260px] mt-10 lg:flex-shrink-0 lg:flex-col rounded-l-xl overflow-hidden"
         style={{
           backgroundColor: "var(--bg-notes)",
           borderRight: "1px solid color-mix(in srgb, var(--border-color) 50%, transparent)",
